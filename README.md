@@ -1,59 +1,105 @@
-# Welcome to Your New Wails3 Project!
+# 🎮 Cache Crushers
 
-Congratulations on generating your Wails3 application! This README will guide you through the next steps to get your project up and running.
+> A disk-cleaning arcade shooter. Turn the boring chore of clearing junk files into a neon space shooter — every enemy you blow up is a real temp/cache file deleted from your machine.
 
-## Getting Started
+Cache Crushers wraps a genuine junk-file cleanup engine in a retro arcade-game shell. Scan your system, and your disposable cache files spawn as enemies. Shoot them down to reclaim disk space. Your score is measured in megabytes actually freed.
 
-1. Navigate to your project directory in the terminal.
+---
 
-2. To run your application in development mode, use the following command:
+## ✨ Features
 
-   ```
-   wails3 dev
-   ```
+- **🎯 Real cleanup, gamified** — every enemy you destroy maps to a real junk file that gets deleted from disk. Your score is the actual space freed.
+- **🛡️ Safety-first scanner** — only targets well-known disposable file types (`.tmp`, `.temp`, `.log`, `.cache`, `.bak`, `.old`, `.dmp`, `.chk`, etc.) in your temp directories. Critical system paths (`System32`, `Program Files`, `Windows`, ...) are detected and flagged as dangerous so they're never touched.
+- **🕹️ Arcade feel** — HTML5 Canvas renderer with neon glow, particle explosions, CRT scanline overlay, chiptune shoot/explosion SFX, and a health/ammo HUD.
+- **⚡ Native & fast** — built with Wails 3, so it's a small native desktop binary (Go backend + webview frontend), not a bloated Electron app.
 
-   This will start your application and enable hot-reloading for both frontend and backend changes.
+## 🎯 How to play
 
-3. To build your application for production, use:
+| Action | Control |
+| --- | --- |
+| Move ship | Mouse |
+| Shoot | Click / hold |
 
-   ```
-   wails3 build
-   ```
+- **Cyan enemies** = cache/junk files. Shoot them to delete the file and bank the space.
+- **Score** = total megabytes freed.
+- **System Health** drops as you clear files — keep an eye on it.
 
-   This will create a production-ready executable in the `build` directory.
+Click **SCAN** to locate junk files, then blast away.
 
-## Exploring Wails3 Features
+## 🧰 Tech stack
 
-Now that you have your project set up, it's time to explore the features that Wails3 offers:
+- **Backend:** Go 1.25, [Wails 3](https://v3.wails.io/)
+- **Frontend:** React 18, TypeScript, Vite 8
+- **Styling:** Tailwind CSS v4
+- **Rendering:** HTML5 Canvas 2D
 
-1. **Check out the examples**: The best way to learn is by example. Visit the `examples` directory in the `v3/examples` directory to see various sample applications.
+## ✅ Prerequisites
 
-2. **Run an example**: To run any of the examples, navigate to the example's directory and use:
+- [Go](https://go.dev/dl/) 1.25+
+- [Node.js](https://nodejs.org/) 18+ and npm
+- [Wails 3 CLI](https://v3.wails.io/): `go install github.com/wailsapp/wails/v3/cmd/wails3@latest`
+- (optional) [Task](https://taskfile.dev/) — the repo ships a `Taskfile.yml`
 
-   ```
-   go run .
-   ```
+## 🚀 Getting started
 
-   Note: Some examples may be under development during the alpha phase.
+**Development** (hot-reload on both frontend and backend):
 
-3. **Explore the documentation**: Visit the [Wails3 documentation](https://v3.wails.io/) for in-depth guides and API references.
+```bash
+wails3 dev
+```
 
-4. **Join the community**: Have questions or want to share your progress? Join the [Wails Discord](https://discord.gg/JDdSxwjhGf) or visit the [Wails discussions on GitHub](https://github.com/wailsapp/wails/discussions).
+or with Task:
 
-## Project Structure
+```bash
+task dev
+```
 
-Take a moment to familiarize yourself with your project structure:
+**Production build** (drops a native executable in `bin/`):
 
-- `frontend/`: Contains your frontend code (HTML, CSS, JavaScript/TypeScript)
-- `main.go`: The entry point of your Go backend
-- `app.go`: Define your application structure and methods here
-- `wails.json`: Configuration file for your Wails project
+```bash
+wails3 build
+# or
+task build
+```
 
-## Next Steps
+The frontend lives in `frontend/` and can be worked on standalone:
 
-1. Modify the frontend in the `frontend/` directory to create your desired UI.
-2. Add backend functionality in `main.go`.
-3. Use `wails3 dev` to see your changes in real-time.
-4. When ready, build your application with `wails3 build`.
+```bash
+cd frontend
+npm install
+npm run dev      # Vite dev server
+npm run build    # type-check (tsc) + production bundle into dist/
+```
 
-Happy coding with Wails3! If you encounter any issues or have questions, don't hesitate to consult the documentation or reach out to the Wails community.
+## 📁 Project structure
+
+```
+.
+├── main.go                # Wails app entry: window, services, embedded assets
+├── cachecrusher.go        # Cleanup engine: scan + crush junk files safely
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx                # App shell, wires game + HUD, calls backend
+│   │   ├── components/
+│   │   │   ├── GameCanvas.tsx     # Canvas game loop, rendering, input, audio
+│   │   │   └── HUD.tsx            # Score / health / ammo panel + SCAN button
+│   │   ├── gameTypes.ts           # Shared TS types (Enemy, Bullet, GameState…)
+│   │   └── index.css              # Tailwind entry + neon/CRT theme styles
+│   ├── bindings/         # Auto-generated Wails bindings to the Go service
+│   └── package.json
+└── build/                # Per-platform packaging configs (win/mac/linux/ios/android)
+```
+
+## ⚠️ Safety note
+
+Cache Crushers **deletes real files** — that's the whole point. The scanner is deliberately conservative:
+
+- It only scans temp directories (`%TEMP%`, `%WINDIR%\Temp`, `%LOCALAPPDATA%\Temp`).
+- It only targets recognized disposable extensions.
+- It detects and avoids dangerous system paths.
+
+That said, you run cleanup tools at your own risk. Close important apps before scanning, and review what's in your temp folders if you're unsure.
+
+## 📄 License
+
+MIT
