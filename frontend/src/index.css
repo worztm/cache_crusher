@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+:root {
+  --neon-cyan: #66FCF1;
+  --danger-red: #C5001A;
+  --bg-dark: #0B0C10;
+  --bg-panel: #12131A;
+  --text-muted: #8A8D9A;
+  --border-glow: #1F2833;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-dark);
+  color: #fff;
+  font-family: 'Inter', 'Roboto', sans-serif;
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.03) 0px,
+    rgba(0, 0, 0, 0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* Vignette */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.6) 100%);
+}
+
+.arcade-text {
+  font-family: 'Press Start 2P', monospace;
+  letter-spacing: 1px;
+}
+
+.neon-border {
+  box-shadow:
+    0 0 5px var(--neon-cyan),
+    0 0 10px var(--neon-cyan),
+    inset 0 0 5px rgba(102, 252, 241, 0.1);
+}
+
+.neon-text {
+  text-shadow:
+    0 0 7px var(--neon-cyan),
+    0 0 10px var(--neon-cyan),
+    0 0 21px var(--neon-cyan);
+}
+
+.danger-glow {
+  box-shadow:
+    0 0 5px var(--danger-red),
+    0 0 10px var(--danger-red),
+    inset 0 0 5px rgba(197, 0, 26, 0.1);
+}
+
+.hud-panel {
+  background: var(--bg-panel);
+  border-left: 2px solid var(--border-glow);
+}
+
+.game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.scan-btn {
+  background: transparent;
+  border: 2px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.scan-btn:hover {
+  background: var(--neon-cyan);
+  color: var(--bg-dark);
+  box-shadow: 0 0 20px rgba(102, 252, 241, 0.4);
+}
+
+.scan-btn:active {
+  transform: scale(0.95);
+}
+
+.status-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: #1F2833;
+  overflow: hidden;
+}
+
+.status-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+  background: var(--neon-cyan);
+}
