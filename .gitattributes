@@ -1,0 +1,10 @@
+# GitHub linguist overrides: exclude generated code from language stats.
+# Wails-generated cross-platform build scaffolding (Android/Java, iOS/ObjC, etc.)
+# is not authored by this project and would otherwise skew the language breakdown.
+build/** linguist-generated
+
+# Vite build output (bundled assets) is generated, not source.
+frontend/dist/** linguist-generated
+
+# Compiled binary
+bin/** linguist-vendored
