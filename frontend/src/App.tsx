@@ -85,11 +85,17 @@ export default function App() {
     const id = ++pendingCrushRef.current;
     try {
       const success = await CacheCrusherService.CrushFile(path);
+      // The backend now refuses to delete protected system paths — that's an
+      // expected refusal, not an error, so don't punish the player's health.
       if (!success && id === pendingCrushRef.current) {
-        setGameState(prev => ({
-          ...prev,
-          systemHealth: Math.max(0, prev.systemHealth - 2),
-        }));
+        setGameState(prev => {
+          const enemy = prev.enemies.find(e => e.path === path);
+          if (enemy?.category === 'Dangerous') return prev;
+          return {
+            ...prev,
+            systemHealth: Math.max(0, prev.systemHealth - 2),
+          };
+        });
       }
       return success;
     } catch {

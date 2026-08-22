@@ -276,9 +276,10 @@ export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAm
         for (let j = enemiesActiveRef.current.length - 1; j >= 0; j--) {
           const e = enemiesActiveRef.current[j];
           const wobbleX = Math.sin(e.wobble) * 3;
+          const cx = e.x + wobbleX; // shift the box center, not one edge
           if (
-            b.x < e.x + e.width / 2 + wobbleX &&
-            b.x + b.width > e.x - e.width / 2 + wobbleX &&
+            b.x < cx + e.width / 2 &&
+            b.x + b.width > cx - e.width / 2 &&
             b.y < e.y + e.height / 2 &&
             b.y + b.height > e.y - e.height / 2
           ) {
