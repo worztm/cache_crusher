@@ -6,7 +6,6 @@ import { GameState, Enemy } from './gameTypes';
 
 function toEnemies(files: any[]): Enemy[] {
   return files
-    .filter(f => f.category === 'Safe')
     .map(f => ({
       id: f.path,
       x: 0,
@@ -14,7 +13,8 @@ function toEnemies(files: any[]): Enemy[] {
       width: 36,
       height: 28,
       speed: 0.5 + Math.random() * 0.8,
-      color: '#66FCF1',
+      // Dangerous (system) files are drawn red as hazards; safe cache files cyan.
+      color: f.category === 'Dangerous' ? '#FF2E4D' : '#66FCF1',
       category: f.category,
       path: f.path,
       sizeMB: f.sizeMB,
