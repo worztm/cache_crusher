@@ -62,6 +62,7 @@ export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAm
   const spawnTimerRef = useRef(0);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const starsRef = useRef<Star[]>(makeStars(90));
+  const exhaustTimerRef = useRef(0);
 
   const spawnExplosion = useCallback((x: number, y: number, color: string) => {
     for (let i = 0; i < 20; i++) {
@@ -231,6 +232,21 @@ export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAm
         }
       }
 
+      // Engine exhaust trail — spawn behind the ship every few frames
+      exhaustTimerRef.current++;
+      if (exhaustTimerRef.current % 3 === 0) {
+        particlesRef.current.push({
+          x: p.x + (Math.random() - 0.5) * 6,
+          y: p.y + p.height / 2 + 2,
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: 1.5 + Math.random() * 1.5,
+          life: 1,
+          maxLife: 0.3 + Math.random() * 0.25,
+          color: Math.random() > 0.5 ? '#66FCF1' : '#45A29E',
+          size: 2 + Math.random() * 3,
+        });
+      }
+
       if (enemiesQueuedRef.current.length > 0 && enemiesActiveRef.current.length < 15) {
         spawnTimerRef.current++;
         if (spawnTimerRef.current > 20) {
@@ -363,9 +379,28 @@ export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAm
       ctx.save();
       ctx.translate(pDraw.x, pDraw.y);
 
+      // Animated engine flame flickering out the back of the ship
+      const flameLen = 10 + Math.sin(performance.now() / 40) * 4 + Math.random() * 3;
+      const flame = ctx.createLinearGradient(0, pDraw.height / 2, 0, pDraw.height / 2 + flameLen);
+      flame.addColorStop(0, 'rgba(102, 252, 241, 0.95)');
+      flame.addColorStop(0.6, 'rgba(69, 162, 158, 0.5)');
+      flame.addColorStop(1, 'transparent');
+      ctx.fillStyle = flame;
+      ctx.beginPath();
+      ctx.moveTo(-4, pDraw.height / 2);
+      ctx.lineTo(4, pDraw.height / 2);
+      ctx.lineTo(0, pDraw.height / 2 + flameLen);
+      ctx.closePath();
+      ctx.fill();
+
+      // Hull with gradient shading
       ctx.shadowColor = '#66FCF1';
       ctx.shadowBlur = 15;
-      ctx.fillStyle = '#66FCF1';
+      const hull = ctx.createLinearGradient(-pDraw.width / 2, 0, pDraw.width / 2, 0);
+      hull.addColorStop(0, '#45A29E');
+      hull.addColorStop(0.5, '#66FCF1');
+      hull.addColorStop(1, '#45A29E');
+      ctx.fillStyle = hull;
       ctx.beginPath();
       ctx.moveTo(0, -pDraw.height / 2);
       ctx.lineTo(-pDraw.width / 2, pDraw.height / 2);
@@ -376,16 +411,21 @@ export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAm
       ctx.closePath();
       ctx.fill();
 
+      // Cockpit highlight
       ctx.shadowBlur = 0;
       ctx.fillStyle = '#0B0C10';
       ctx.beginPath();
       ctx.arc(0, -pDraw.height / 3, 4, 0, Math.PI * 2);
       ctx.fill();
+      ctx.strokeStyle = 'rgba(232, 234, 255, 0.7)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
 
       if (pDraw.shieldsUp) {
-        ctx.shadowColor = '#C5001A';
+        const pulse = 0.55 + Math.sin(performance.now() / 60) * 0.35;
+        ctx.shadowColor = '#FF2E4D';
         ctx.shadowBlur = 20;
-        ctx.strokeStyle = '#C5001A';
+        ctx.strokeStyle = `rgba(255, 46, 77, ${pulse})`;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.arc(0, 0, pDraw.width / 2 + 8, 0, Math.PI * 2);
