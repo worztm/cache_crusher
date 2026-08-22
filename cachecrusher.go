@@ -148,6 +148,12 @@ func (c *CacheCrusherService) ScanJunkFiles() []JunkFile {
 }
 
 func (c *CacheCrusherService) CrushFile(filePath string) bool {
+	// Safety guard: never delete anything inside a dangerous/system path.
+	// The UI marks these as Dangerous, but the guard must be enforced here
+	// too so a buggy or tampered frontend can't wipe system directories.
+	if isDangerousPath(filePath) {
+		return false
+	}
 	info, err := os.Stat(filePath)
 	if err != nil {
 		return false
