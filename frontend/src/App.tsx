@@ -110,6 +110,7 @@ export default function App() {
           onCrushFile={handleCrushFile}
           onAmmoChange={handleAmmoChange}
           isPlaying={isPlaying}
+          onScanRequested={handleScan}
         />
       </div>
       <HUD gameState={gameState} onScan={handleScan} isPlaying={isPlaying} />

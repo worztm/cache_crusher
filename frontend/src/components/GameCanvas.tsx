@@ -1,5 +1,6 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { Player, Enemy, Bullet, Particle, GameState } from '../gameTypes';
+import StartOverlay from './StartOverlay';
 
 interface GameCanvasProps {
   gameState: GameState;
@@ -7,6 +8,7 @@ interface GameCanvasProps {
   onCrushFile: (path: string) => Promise<boolean>;
   onAmmoChange: (ammo: number) => void;
   isPlaying: boolean;
+  onScanRequested: () => void;
 }
 
 const CANVAS_W = 800;
@@ -17,7 +19,7 @@ const BULLET_W = 4;
 const BULLET_H = 12;
 const BULLET_SPEED = 8;
 
-export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAmmoChange, isPlaying }: GameCanvasProps) {
+export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAmmoChange, isPlaying, onScanRequested }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const playerRef = useRef<Player>({ x: 400, y: 540, width: PLAYER_W, height: PLAYER_H, speed: 6, shieldsUp: false, shieldTimer: 0 });
   const mouseRef = useRef({ x: 400, y: 540 });
@@ -441,14 +443,7 @@ export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAm
         height={CANVAS_H}
         className="game-canvas neon-border"
       />
-      {!isPlaying && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[rgba(11,12,16,0.85)]">
-          <div className="text-center">
-            <h2 className="arcade-text text-[#66FCF1] text-xl mb-4 neon-text">CACHE CRUSHERS</h2>
-            <p className="arcade-text text-[#8A8D9A] text-xs mb-6">Press SCAN to locate junk files</p>
-          </div>
-        </div>
-      )}
+      {!isPlaying && <StartOverlay isScanning={gameState.isScanning} onScan={onScanRequested} />}
     </div>
   );
 }
