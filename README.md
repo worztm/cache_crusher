@@ -9,8 +9,9 @@ Cache Crushers wraps a genuine junk-file cleanup engine in a retro arcade-game s
 ## ✨ Features
 
 - **🎯 Real cleanup, gamified** — every enemy you destroy maps to a real junk file that gets deleted from disk. Your score is the actual space freed.
-- **🛡️ Safety-first scanner** — only targets well-known disposable file types (`.tmp`, `.temp`, `.log`, `.cache`, `.bak`, `.old`, `.dmp`, `.chk`, etc.) in your temp directories. Critical system paths (`System32`, `Program Files`, `Windows`, ...) are detected and flagged as dangerous so they're never touched.
-- **🕹️ Arcade feel** — HTML5 Canvas renderer with neon glow, particle explosions, CRT scanline overlay, chiptune shoot/explosion SFX, and a health/ammo HUD.
+- **🛡️ Safety-first scanner** — only targets well-known disposable file types (`.tmp`, `.temp`, `.log`, `.cache`, `.bak`, `.old`, `.dmp`, `.chk`, etc.) in your temp directories. Critical system paths (`System32`, `Program Files`, `Windows`, ...) are detected, flagged as dangerous, and **refused at the backend delete layer** so they're never touched — even if the UI misbehaves.
+- **🕹️ Arcade feel** — HTML5 Canvas renderer with deep-space nebula backdrop, parallax starfield, gradient-hulled ship with animated engine flame and exhaust trail, size-scaled enemies with hit flashes and pill labels, particle explosions, CRT scanline overlay, chiptune shoot/explosion SFX.
+- **📊 Polished HUD** — animated stat cards, tiered health bar (green/amber/red), live cleanup-progress bar, styled controls legend, and a dedicated arcade title screen.
 - **⚡ Native & fast** — built with Wails 3, so it's a small native desktop binary (Go backend + webview frontend), not a bloated Electron app.
 
 ## 🎯 How to play
@@ -21,6 +22,7 @@ Cache Crushers wraps a genuine junk-file cleanup engine in a retro arcade-game s
 | Shoot | Click / hold |
 
 - **Cyan enemies** = cache/junk files. Shoot them to delete the file and bank the space.
+- **Red spiky enemies** = protected/system paths. Don't shoot — hitting them just raises a shield.
 - **Score** = total megabytes freed.
 - **System Health** drops as you clear files — keep an eye on it.
 
