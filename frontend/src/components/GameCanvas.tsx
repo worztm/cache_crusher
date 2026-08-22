@@ -289,6 +289,11 @@ export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAm
               break;
             }
             e.hp--;
+            if (e.hp > 0) {
+              // Hit flash — brief white overlay so hits feel crunchy
+              e.locked = true;
+              e.lockedTimer = 4;
+            }
             if (e.hp <= 0) {
               spawnExplosion(e.x, e.y, e.color);
               playExplosionSound();
@@ -440,6 +445,10 @@ export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAm
         ctx.save();
         ctx.translate(e.x + wobbleX, e.y);
 
+        // Enemies scale with the amount of junk they represent
+        const sizeScale = Math.min(1.6, Math.max(0.8, 0.8 + e.sizeMB * 0.12));
+        ctx.scale(sizeScale, sizeScale);
+
         ctx.shadowColor = e.color;
         ctx.shadowBlur = 12;
         ctx.fillStyle = e.color;
@@ -474,14 +483,34 @@ export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAm
         }
 
         ctx.shadowBlur = 0;
-        ctx.fillStyle = '#fff';
-        ctx.font = '8px monospace';
-        ctx.textAlign = 'center';
-        const label = e.sizeMB < 1 ? `${(e.sizeMB * 1024).toFixed(0)}KB` : `${e.sizeMB.toFixed(1)}MB`;
-        ctx.fillText(label, 0, e.height / 2 + 10);
 
-        if (e.locked) {
-          ctx.fillStyle = '#C5001A';
+        // Hit flash overlay
+        if (e.locked && e.lockedTimer > 0 && e.category !== 'Dangerous') {
+          ctx.globalAlpha = 0.85;
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.arc(0, 0, e.width / 2 + 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+
+        // Size label on a subtle pill for readability
+        const label = e.sizeMB < 1 ? `${(e.sizeMB * 1024).toFixed(0)}KB` : `${e.sizeMB.toFixed(1)}MB`;
+        ctx.font = 'bold 8px monospace';
+        ctx.textAlign = 'center';
+        const labelW = ctx.measureText(label).width + 8;
+        ctx.fillStyle = 'rgba(11, 12, 16, 0.65)';
+        ctx.beginPath();
+        ctx.roundRect(-labelW / 2, e.height / 2 + 4, labelW, 12, 6);
+        ctx.fill();
+        ctx.strokeStyle = e.category === 'Dangerous' ? 'rgba(255, 46, 77, 0.5)' : 'rgba(102, 252, 241, 0.35)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fillStyle = '#E8EAFF';
+        ctx.fillText(label, 0, e.height / 2 + 13);
+
+        if (e.locked && e.lockedTimer > 8 && e.category === 'Dangerous') {
+          ctx.fillStyle = '#FF2E4D';
           ctx.font = 'bold 10px monospace';
           ctx.fillText('LOCKED', 0, -e.height / 2 - 6);
         }
