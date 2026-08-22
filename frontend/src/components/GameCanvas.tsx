@@ -19,6 +19,34 @@ const BULLET_W = 4;
 const BULLET_H = 12;
 const BULLET_SPEED = 8;
 
+interface Star {
+  x: number;
+  y: number;
+  size: number;
+  speed: number;
+  alpha: number;
+}
+
+// Deterministic pseudo-random starfield so it looks the same each run.
+function makeStars(count: number): Star[] {
+  const stars: Star[] = [];
+  let seed = 1337;
+  const rand = () => {
+    seed = (seed * 16807) % 2147483647;
+    return seed / 2147483647;
+  };
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: rand() * CANVAS_W,
+      y: rand() * CANVAS_H,
+      size: 0.5 + rand() * 1.8,
+      speed: 0.15 + rand() * 0.5,
+      alpha: 0.2 + rand() * 0.6,
+    });
+  }
+  return stars;
+}
+
 export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAmmoChange, isPlaying, onScanRequested }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const playerRef = useRef<Player>({ x: 400, y: 540, width: PLAYER_W, height: PLAYER_H, speed: 6, shieldsUp: false, shieldTimer: 0 });
@@ -33,6 +61,7 @@ export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAm
   const enemiesActiveRef = useRef<Enemy[]>([]);
   const spawnTimerRef = useRef(0);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const starsRef = useRef<Star[]>(makeStars(90));
 
   const spawnExplosion = useCallback((x: number, y: number, color: string) => {
     for (let i = 0; i < 20; i++) {
@@ -275,8 +304,43 @@ export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAm
 
       ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
 
-      ctx.fillStyle = '#0B0C10';
+      // Deep space background with subtle nebula tint
+      const bg = ctx.createRadialGradient(
+        CANVAS_W / 2, CANVAS_H * 0.35, 60,
+        CANVAS_W / 2, CANVAS_H / 2, CANVAS_W * 0.75
+      );
+      bg.addColorStop(0, '#101522');
+      bg.addColorStop(0.55, '#0B0C10');
+      bg.addColorStop(1, '#07080C');
+      ctx.fillStyle = bg;
       ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+      // Nebula accents
+      ctx.globalAlpha = 0.05;
+      const nebA = ctx.createRadialGradient(CANVAS_W * 0.2, CANVAS_H * 0.3, 10, CANVAS_W * 0.2, CANVAS_H * 0.3, 260);
+      nebA.addColorStop(0, '#66FCF1');
+      nebA.addColorStop(1, 'transparent');
+      ctx.fillStyle = nebA;
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      const nebB = ctx.createRadialGradient(CANVAS_W * 0.85, CANVAS_H * 0.75, 10, CANVAS_W * 0.85, CANVAS_H * 0.75, 300);
+      nebB.addColorStop(0, '#45A29E');
+      nebB.addColorStop(1, 'transparent');
+      ctx.fillStyle = nebB;
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      ctx.globalAlpha = 1;
+
+      // Parallax starfield — slow drift downward for a sense of motion
+      starsRef.current.forEach(s => {
+        s.y += s.speed;
+        if (s.y > CANVAS_H) {
+          s.y = -2;
+          s.x = Math.random() * CANVAS_W;
+        }
+        ctx.globalAlpha = s.alpha;
+        ctx.fillStyle = s.size > 1.6 ? '#BFFCF8' : '#66FCF1';
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+      });
+      ctx.globalAlpha = 1;
 
       for (let i = 0; i < CANVAS_W; i += 25) {
         ctx.strokeStyle = 'rgba(102, 252, 241, 0.03)';
@@ -403,7 +467,7 @@ export default function GameCanvas({ gameState, onScoreUpdate, onCrushFile, onAm
 
       const grd = ctx.createLinearGradient(0, CANVAS_H - 40, 0, CANVAS_H);
       grd.addColorStop(0, 'transparent');
-      grd.addColorStop(1, 'rgba(102, 252, 241, 0.05)');
+      grd.addColorStop(1, 'rgba(102, 252, 241, 0.07)');
       ctx.fillStyle = grd;
       ctx.fillRect(0, CANVAS_H - 40, CANVAS_W, 40);
 
